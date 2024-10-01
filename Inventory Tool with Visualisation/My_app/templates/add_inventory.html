@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</head>
+<body>
+    <h1>Add Inventory</h1>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label for="inventoryId">Inventory ID:</label><br>
+        <input type="text" id="inventoryId" name="inventoryId" required><br>
+        <div id="inventoryList"></div><br> <!-- This will display matching inventory options -->
+        
+        <!-- <label for="inventoryId">Inventory ID:</label><br>
+        <input type="text" id="inventoryId" name="inventoryId" required><br> -->
+        
+        <label for="stockLastCounted">Stock Last Counted:</label><br>
+        <input type="date" id="stockLastCounted" name="stockLastCounted" required><br>
+
+        <!-- <label for="supplierName">Supplier Name:</label><br>
+        <input type="text" id="supplierName" name="supplierName" onkeyup="fetchSuppliers()" required><br>
+        <div id="supplierList"></div><br> -->
+
+
+
+        <!-- <label for="descriptionField">Description:</label><br>
+        <input type="text" id="descriptionField" name="descriptionField" onkeyup="fetchdescriptions()" required><br>
+        <div id="descriptionList"></div><br>
+
+        <label for="manufacturerNumber">Manufacturer Number:</label><br>
+        <input type="text" id="manufacturerNumber" name="manufacturerNumber" onkeyup="fetchManufacturers()" required><br>
+        <div id="manufacturerList"></div><br> -->
+
+        <label for="supplierName">Supplier Name:</label><br>
+        <input type="text" id="supplierName" name="supplierName" onkeyup="fetchSuppliers()" required><br>
+        <div id="supplierList"></div><br>
+
+        <label for="manufacturerNumber">Manufacturer Number:</label><br>
+        <input type="text" id="manufacturerNumber" name="manufacturerNumber" onkeyup="fetchManufacturers()" required readonly><br>
+        <div id="manufacturerList"></div><br>
+
+        <label for="descriptionField">Description:</label><br>
+        <input type="text" id="descriptionField" name="descriptionField" onkeyup="fetchdescriptions()" required readonly><br>
+        <div id="descriptionList"></div><br>
+        
+
+        <label for="purchaseOrderNo">Purchase Order No:</label><br>
+        <input type="text" id="purchaseOrderNo" name="purchaseOrderNo" onkeyup="fetchPurchaseOrders()" required><br>
+        <div id="purchaseOrderList"></div><br>
+        
+        <label for="orderCode">Order Code:</label><br>
+        <input type="text" id="orderCode" name="orderCode" onkeyup="fetchOrderCodes()" required><br>
+        <div id="orderCodeList"></div><br>
+        
+        <label for="category">Category:</label><br>
+        <input type="text" id="category" name="category" onkeyup="fetchCategories()" ><br>
+        <div id="categoryList"></div><br>
+
+        <label for="stockQuantity">Qty:</label><br>
+        <input type="text" id="stockQuantity" name="stockQuantity" required><br>
+        
+        <label for="unitPrice">Unit Price:</label><br>
+        <input type="text" id="unitPrice" name="unitPrice" required><br>
+        
+        
+        <label for="reorderLevel">Reorder Level:</label><br>
+        <input type="text" id="reorderLevel" name="reorderLevel" required><br>
+        
+        <label for="reorder">Reorder?</label><br>
+        <input type="checkbox" id="reorder" name="reorder"><br>
+        
+        <label for="discontinued">Discontinued?</label><br>
+        <input type="checkbox" id="discontinued" name="discontinued"><br>
+		
+        
+        
+        <!-- <div id="descriptionField" style="display: none;">
+            <label for="description">Description:</label><br>
+            <input type="text" id="description" name="description" required><br>
+        </div> -->
+        
+        
+        <label for="currencyType">Currency Type:</label><br>
+        <select id="currencyType" name="currencyType">
+            <option value="GBP" selected>GBP</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+        </select><br>
+        
+        <label for="conversionRate">Conversion Rate:</label><br>
+        <input type="text" id="conversionRate" name="conversionRate" value="1.0" required><br>
+
+        <input type="submit" value="Add Inventory">
+    </form>
+    <a href="{{ url_for('home') }}">Back to Home</a>
+    
+</body>
+</html>

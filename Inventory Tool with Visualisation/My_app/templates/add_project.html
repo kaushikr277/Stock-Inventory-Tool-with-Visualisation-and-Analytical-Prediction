@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Add New Project</h1>
+        <div class="header-actions">
+            <a href="{{ url_for('home') }}" class="button">Back to Home</a>
+
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <div class="form-container">
+        <form method="POST" action="{{ url_for('add_project') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="project_name">Project Name:</label>
+            <input type="text" id="project_name" name="project_name" required>
+        
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" required>
+        
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" required>
+            <br>
+            <label for="invoice_number">Invoice Number:</label>
+            <input type="number" id="invoice_number" name="invoice_number" required>
+        
+            <label for="inventory_search">Search Inventory:</label>
+            <input type="text" id="inventory_search" placeholder="Search by ID, Description, etc." onkeyup="searchInventory()">
+            <div id="inventory_results"></div>
+        
+            <label>Selected Inventory Items:</label>
+            <div id="selected_inventory"></div>
+        
+            <input type="submit" value="Add Project" class="button">
+        </form>
+        
+        <script>
+        function searchInventory() {
+            let query = document.getElementById('inventory_search').value;
+            if (query.length >= 2) {
+                fetch(`/search_inventory?query=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let inventoryResults = document.getElementById('inventory_results');
+                        inventoryResults.innerHTML = '';
+                        data.forEach(item => {
+                            let div = document.createElement('div');
+                            div.textContent = `
+                                ${item.InventoryID} - ${item.Description} - 
+                                ${item.ManufacturerNumber} -${item.SupplierName} - ${item.PurchaseOrderNo} - 
+                                ${item.OrderCode}`;
+                            div.onclick = () => selectInventory(item);
+                            inventoryResults.appendChild(div);
+                        });
+                    });
+            } else {
+                document.getElementById('inventory_results').innerHTML = '';
+            }
+        }
+
+
+        // function searchInventory() {
+        //     let query = document.getElementById('inventory_search').value;
+        //     if (query.length >= 2) {
+        //         fetch(`/search_inventory?query=${query}`)
+        //             .then(response => response.json())
+        //             .then(data => {
+        //                 let inventoryResults = document.getElementById('inventory_results');
+        //                 inventoryResults.innerHTML = '';
+        //                 data.forEach(item => {
+        //                     let div = document.createElement('div');
+        //                     div.textContent = `${item.InventoryID} - ${item.Description} - ${item.ManufacturerNumber}`;
+        //                     div.onclick = () => selectInventory(item);
+        //                     inventoryResults.appendChild(div);
+        //                 });
+        //             });
+        //     } else {
+        //         document.getElementById('inventory_results').innerHTML = '';
+        //     }
+        // }
+        
+        function selectInventory(item) {
+            let selectedInventory = document.getElementById('selected_inventory');
+
+            let div = document.createElement('div');
+            div.className = 'selected-item';
+            div.innerHTML = `
+                <span>${item.InventoryID} - ${item.Description} - ${item.ManufacturerNumber} - ${item.OrderCode} </span>
+                <input type="hidden" name="inventory[]" value="${item.InventoryID}">
+                <input type="hidden" name="descriptions[]" value="${item.Description}">
+                <input type="hidden" name="ordercode[]" value="${item.OrderCode}">
+                <input type="number" name="quantities[]" placeholder="Enter quantity" min="1" required>
+                <button type="button" onclick="removeInventory(this)">Remove</button>
+            `;
+            selectedInventory.appendChild(div);
+
+            // Clear the search box and results
+            document.getElementById('inventory_search').value = '';
+            document.getElementById('inventory_results').innerHTML = '';
+        }
+
+
+        
+        function removeInventory(button) {
+            button.parentElement.remove();
+        }
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Inventory to Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Add Inventory to Project</h1>
+        <div class="header-actions">
+            <a href="{{ url_for('view_projects') }}" class="button">Back to Projects</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <div class="form-container">
+        <form method="POST" action="{{ url_for('add_inventory_to_project', project_id=project_id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="inventory_search">Search Inventory:</label>
+            <input type="text" id="inventory_search" placeholder="Search by ID, Description, etc." onkeyup="searchInventory()">
+            <div id="inventory_results"></div>
+
+            <label>Selected Inventory Items:</label>
+            <div id="selected_inventory"></div>
+
+            <input type="submit" value="Add Inventory" class="button">
+        </form>
+    </div>
+
+    <script>
+        function searchInventory() {
+            let query = document.getElementById('inventory_search').value;
+            if (query.length >= 2) {
+                fetch(`/search_inventory?query=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let inventoryResults = document.getElementById('inventory_results');
+                        inventoryResults.innerHTML = '';
+                        data.forEach(item => {
+                            let div = document.createElement('div');
+                            div.textContent = `
+                                ${item.InventoryID} - ${item.Description} - 
+                                ${item.ManufacturerNumber} -${item.SupplierName} - ${item.PurchaseOrderNo} - 
+                                ${item.OrderCode}`;
+                            div.onclick = () => selectInventory(item);
+                            inventoryResults.appendChild(div);
+                        });
+                    });
+            } else {
+                document.getElementById('inventory_results').innerHTML = '';
+            }
+        }
+
+        
+        function selectInventory(item) {
+            let selectedInventory = document.getElementById('selected_inventory');
+
+            let div = document.createElement('div');
+            div.className = 'selected-item';
+            div.innerHTML = `
+                <span>${item.InventoryID} - ${item.Description} - ${item.ManufacturerNumber} - ${item.OrderCode}</span>
+                <input type="hidden" name="inventory[]" value="${item.InventoryID}">
+                <input type='hidden' name="ordercode[]" value="${item.OrderCode}">
+                <input type="hidden" name="descriptions[]" value="${item.Description}">
+                <input type="number" name="quantities[]" placeholder="Enter quantity" min="1" required>
+                <button type="button" onclick="removeInventory(this)">Remove</button>
+            `;
+            selectedInventory.appendChild(div);
+
+            // Clear the search box and results
+            document.getElementById('inventory_search').value = '';
+            document.getElementById('inventory_results').innerHTML = '';
+        }
+
+
+        
+        function removeInventory(button) {
+            button.parentElement.remove();
+        }
+        </script>
+</body>
+</html>

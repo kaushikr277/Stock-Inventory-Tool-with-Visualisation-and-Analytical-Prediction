@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Projects</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Projects</h1>
+        <div class="header-actions">
+            <a href="{{ url_for('home') }}" class="button">Back to Home</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <div class="table-container">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ProjectID</th>
+                    <th>Project Name</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Invoice Number</th>
+                    <th>Inventory ID</th>
+                    <th>Description</th>
+                    <th>Order Code</th>
+                    <th>Quantity Used</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                    {% for item in project['Inventory'] %}
+                    <tr>
+                        {% if loop.first %}
+                        <td rowspan="{{ project['Inventory']|length }}">{{ project['ProjectID'] }}</td>
+                        <td rowspan="{{ project['Inventory']|length }}">{{ project['Project Name'] }}</td>
+                        <td rowspan="{{ project['Inventory']|length }}">{{ project['Start Date'] }}</td>
+                        <td rowspan="{{ project['Inventory']|length }}">{{ project['END Date'] }}</td>
+                        <td rowspan="{{ project['Inventory']|length }}">{{ project['Invoice Number'] }}</td>
+                        {% endif %}
+                        <td>{{ item['InventoryID'] }}</td>
+                        <td>{{ item['Description'] }}</td>
+                        <td>{{ item['OrderCode'] }}</td> 
+                        <td>{{ item['Qty'] }}</td>
+                        <td>
+                            <!-- Sign Out Button -->
+                            <!-- <form action="{{ url_for('signout_inventory', project_id=project['ProjectID'], inventory_id=item['InventoryID']) }}" method="post" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="submit" value="Sign Out" class="button">
+                            </form> -->
+                            <button onclick="showSignOutModal({{ project['ProjectID'] }}, '{{ item['InventoryID'] }}')">Sign Out</button>
+                            <!-- Add New Inventory Button -->
+                                <a href="{{ url_for('add_inventory_to_project', project_id=project['ProjectID']) }}" class="button">Add Inventory</a>
+    
+                        </td>
+                        
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- Modal for password confirmation -->
+<div id="signOutModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>Please enter the password to confirm sign out:</p>
+      <input type="password" id="signOutPasswordInput">
+      <button id="confirmSignOutButton">Confirm</button>
+    </div>
+</div>
+
+<script>
+    let projectIdToSignOut;
+    let inventoryIdToSignOut;
+
+    function showSignOutModal(projectId, inventoryId) {
+        projectIdToSignOut = projectId;
+        inventoryIdToSignOut = inventoryId;
+        document.getElementById('signOutModal').style.display = "block";
+    }
+
+    document.getElementsByClassName('close')[0].onclick = function() {
+        document.getElementById('signOutModal').style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('signOutModal')) {
+            document.getElementById('signOutModal').style.display = "none";
+        }
+    }
+
+    document.getElementById('confirmSignOutButton').onclick = function() {
+        const password = document.getElementById('signOutPasswordInput').value;
+        if (password) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/signout_inventory/${projectIdToSignOut}/${inventoryIdToSignOut}`;
+
+            const passwordField = document.createElement('input');
+            passwordField.type = 'hidden';
+            passwordField.name = 'password';
+            passwordField.value = password;
+
+            const csrfField = document.createElement('input');
+            csrfField.type = 'hidden';
+            csrfField.name = 'csrf_token';
+            csrfField.value = '{{ csrf_token() }}';  // Generate CSRF token
+
+            form.appendChild(passwordField);
+            form.appendChild(csrfField);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+
+    </div>
+</body>
+</html>

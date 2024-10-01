@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Logs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Logs</h1>
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Action</th>
+            <th>Related ID</th>
+            <th>Timestamp</th>
+        </tr>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log['Name'] }}</td>
+            <td>{{ log['action'] }}</td>
+            <td>{{ log['related_id'] }}</td>
+            <td>{{ log['timestamp'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('home') }}" class="button">Back to Home</a>
+</body>
+</html>

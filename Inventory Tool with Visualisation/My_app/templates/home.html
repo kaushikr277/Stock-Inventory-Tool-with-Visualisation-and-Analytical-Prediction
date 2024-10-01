@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventory Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
+<body>
+    <h1>Inventory</h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <div class="container">
+        {% if session['type'] == 'Admin' %}
+                <a href="{{ url_for('add_inventory') }}" class="button" >Add Inventory</a>
+            {% endif %}
+        <a href="{{ url_for('logout') }}" class="button">Logout</a>  <!-- Logout link -->
+        {% if session['type'] == 'Admin' %}
+                <a href="{{ url_for('view_logs') }}" class="button">View Logs</a>
+                <a href="{{ url_for('upload_file') }}" class="button">Upload Excel</a>
+                 <!-- New Buttons -->
+                <a href="{{ url_for('add_project') }}" class="button">Add Projects</a>
+                <!-- home.html -->
+                <a href="{{ url_for('show_visualisations') }}" class="button">Visualise Data</a>
+
+                <!-- End of New Buttons -->
+                <a href="{{ url_for('reports_page') }}" class="button">Generate Reports</a>
+                <a href="{{ url_for('manual_backup') }}" class="button">Manual Backup</a> <!-- Manual Backup Button -->
+            {% endif %}
+            <a href="{{ url_for('view_projects') }}" class="button">View Projects</a>
+    </div>
+	<!-- Search Form -->
+        <form method="GET" action="{{ url_for('home') }}" class="search-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="search" placeholder="Search by Inventory ID or Description">
+            <input type="submit" value="Search">
+        </form>
+        <!-- Search Form -->
+    <form method="GET" action="{{ url_for('home') }}" class="search-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="inventory_id" placeholder="Inventory ID" value="{{ request.args.get('inventory_id', '') }}">
+        <input type="text" name="stock_last_counted" placeholder="Stock Last Counted" value="{{ request.args.get('stock_last_counted', '') }}">
+        <input type="text" name="manufacturer_number" placeholder="Manufacturer Number" value="{{ request.args.get('manufacturer_number', '') }}">
+        <input type="text" name="description" placeholder="Description" value="{{ request.args.get('description', '') }}">
+        <input type="text" name="supplier" placeholder="Supplier" value="{{ request.args.get('supplier', '') }}">
+        <input type="text" name="purchase_order_no" placeholder="Purchase Order No" value="{{ request.args.get('purchase_order_no', '') }}">
+        <input type="number" name="qty" placeholder="Qty" value="{{ request.args.get('qty', '') }}">
+        <input type="number" name="unit_price" placeholder="Unit Price" value="{{ request.args.get('unit_price', '') }}">
+        <input type="number" name="inventory_value" placeholder="Inventory Value" value="{{ request.args.get('inventory_value', '') }}">
+        <input type="text" name="order_code" placeholder="Order Code" value="{{ request.args.get('order_code', '') }}">
+        <input type="text" name="category" placeholder="Category" value="{{ request.args.get('category', '') }}">
+        <input type="number" name="reorder_level" placeholder="Reorder Level" value="{{ request.args.get('reorder_level', '') }}">
+        <input type="text" name="reorder" placeholder="Reorder?" value="{{ request.args.get('reorder', '') }}">
+        <input type="text" name="discontinued" placeholder="Discontinued?" value="{{ request.args.get('discontinued', '') }}">
+        <input type="submit" value="Search">
+        <button type="button" onclick="resetFilters()">Reset</button>
+    </form>
+    
+    <div class="table-container">
+        <table border="1">
+            <tr>
+                <th>StockID</th>
+                <th>InventoryID</th>
+                <th>Stock Last Counted</th>
+                <th>Manufacturer Number</th>
+                <th>Description</th>
+                <th>Supplier</th>
+                <th>Purchase Order No</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Inventory Value</th>
+                <th>Order Code</th>
+                <th>Category</th>
+                <th>Reorder Level</th>
+                <th>Reorder?</th>
+                <th>Discontinued?</th>
+                <th>Actions</th>
+            {% for item in inventory %}
+            <tr class="{{ 'low-stock' if item['Qty'] < 2 else '' }}">
+                <td>{{ item['StockID'] }}</td>
+                <td>{{ item['InventoryID'] }}</td>
+                <td>{{ item['Stock Last Counted'] }}</td>
+                <td>{{ item['Manufacturer Number'] }}</td>
+                <td>{{ item['Description'] }}</td>
+                <td>{{ item['Supplier Name'] }}</td>
+                <td>{{ item['Purchase Order No'] }}</td>
+                <td>{{ item['Qty'] }}</td>
+                <td>{{ item['Unit Price'] }}</td>
+                <td>{{ item['Inventory Value'] }}</td>
+                <td>{{ item['Order Code'] }}</td>
+                <td>{{ item['Category'] }}</td>
+                <td>{{ item['Reorder Level'] }}</td>
+                <td>{{ item['Redorder?'] }}</td>
+                <td>{{ item['Discontinued?'] }}</td>
+                <td>
+                    {% if session['type'] == 'Admin' %}
+                            <a href="{{ url_for('update_inventory', stock_id=item['StockID']) }}">Edit</a>
+                    {% endif %}
+                    <!-- <form action="{{ url_for('delete_inventory', stock_id=item['StockID']) }}" method="post" onsubmit="return confirmDelete(this);" style="display:inline;">
+                        {{ csrf_token() }}
+                        <input type="password" name="password" placeholder="Password" required>
+                        <button type="submit">Delete</button>
+                    </form> -->
+                   
+                    <button onclick="showPasswordModal({{ item['StockID'] }})">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+
+     <!-- The Modal -->
+     <div id="passwordModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p>Please enter the password to confirm deletion:</p>
+          <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
+          <input type="password" id="passwordInput">
+          <button id="confirmDeleteButton">Confirm</button>
+        </div>
+      </div>
+
+    <script>
+        let stockIdToDelete;
+        function showPasswordModal(stockId) {
+            stockIdToDelete = stockId;
+            document.getElementById('passwordModal').style.display = "block";
+        }
+
+        document.getElementsByClassName('close')[0].onclick = function() {
+            document.getElementById('passwordModal').style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('passwordModal')) {
+                document.getElementById('passwordModal').style.display = "none";
+            }
+        }
+
+        document.getElementById('confirmDeleteButton').onclick = function() {
+            const password = document.getElementById('passwordInput').value;
+            if (password) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/delete_inventory/${stockIdToDelete}`;
+
+                const passwordField = document.createElement('input');
+                passwordField.type = 'hidden';
+                passwordField.name = 'password';
+                passwordField.value = password;
+
+                const csrfField = document.createElement('input');
+                csrfField.type = 'hidden';
+                csrfField.name = 'csrf_token';
+                csrfField.value = '{{ csrf_token() }}';  // Generate CSRF token
+
+                form.appendChild(passwordField);
+                form.appendChild(csrfField);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        function resetFilters() {
+        const form = document.querySelector('.search-form');
+        const inputs = form.querySelectorAll('input[type="text"], input[type="number"]');
+        inputs.forEach(input => input.value = '');
+        form.submit();
+    }
+    // Hide heading on scroll
+    const mainHeading = document.getElementById('main-heading');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                mainHeading.classList.add('hidden');
+            } else {
+                mainHeading.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

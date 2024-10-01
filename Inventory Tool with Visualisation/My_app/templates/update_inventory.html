@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</head>
+<body>
+    <h1>Update Inventory</h1>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="inventoryId">Inventory ID:</label><br>
+        <input type="text" id="inventoryId" name="inventoryId" value="{{ item['InventoryID'] }}" required><br>
+        
+        <label for="stockLastCounted">Stock Last Counted:</label><br>
+        <input type="text" id="stockLastCounted" name="stockLastCounted" value="{{ item['Stock Last Counted'] }}" required><br>
+        
+        <label for="unitPrice">Unit Price:</label><br>
+        <input type="text" id="unitPrice" name="unitPrice" value="{{ item['Unit Price'] }}" required><br>
+        
+        <label for="stockQuantity">Qty:</label><br>
+        <input type="text" id="stockQuantity" name="stockQuantity" value="{{ item['Qty'] }}" required><br>
+        
+        <label for="reorderLevel">Reorder Level:</label><br>
+        <input type="text" id="reorderLevel" name="reorderLevel" value="{{ item['Reorder Level'] }}" required><br>
+        
+        <label for="reorder">Reorder?</label><br>
+        <input type="checkbox" id="reorder" name="reorder" {% if item['Redorder?'] == 'Yes' %}checked{% endif %}><br>
+        
+        <label for="discontinued">Discontinued?</label><br>
+        <input type="checkbox" id="discontinued" name="discontinued" {% if item['Discontinued?'] == 'Yes' %}checked{% endif %}><br>
+        
+        <label for="supplierName">Supplier Name:</label><br>
+        <input type="text" id="supplierName" name="supplierName" value="{{ item['Supplier Name'] }}" oninput="fetchSuppliers()" required><br>
+        <ul id="supplierList"></ul>
+        
+        <label for="purchaseOrderNo">Purchase Order No:</label><br>
+        <input type="text" id="purchaseOrderNo" name="purchaseOrderNo" value="{{ item['Purchase Order No'] }}" oninput="fetchPurchaseOrders()" required><br>
+        <ul id="purchaseOrderList"></ul>
+        
+        <label for="orderCode">Order Code:</label><br>
+        <input type="text" id="orderCode" name="orderCode" value="{{ item['Order Code'] }}" oninput="fetchOrderCodes()" required><br>
+        <ul id="orderCodeList"></ul>
+        
+        <label for="category">Category:</label><br>
+        <input type="text" id="category" name="category" value="{{ item['Category'] }}" oninput="fetchCategories()" required><br>
+        <ul id="categoryList"></ul>
+
+        <label for="descriptionField">Description:</label><br>
+        <input type="text" id="descriptionField" name="descriptionField" value="{{ item['Description'] }}" oninput="fetchdescriptions()" required><br>
+        <ul id="descriptionList"></ul>
+        
+        <label for="manufacturerNumber">Manufacturer Number:</label><br>
+        <input type="text" id="manufacturerNumber" name="manufacturerNumber" value="{{ item['Manufacturer Number'] }}" oninput="fetchManufacturers()" required>
+        <ul id="manufacturerList"></ul>
+        <!-- <datalist id="manufacturerNumbers">
+            {% for number in manufacturerNumbers %}
+                <option value="{{ number }}">{{ number }}</option>
+            {% endfor %}
+        </datalist><br> -->
+
+        <!-- <label for="description">Description:</label><br>
+        <input type="text" id="description" name="description" value="{{ item['Description'] }}" required><br> -->
+        
+
+        <!-- <label for="manufacturerNumber">Manufacturer Number:</label><br>
+        <input type="text" id="manufacturerNumber" name="manufacturerNumber" value="{{ item['Manufacturer Number'] }}" oninput="fetchManufacturers()" required><br>
+        <ul id="manufacturerList"></ul>
+        
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" required>{{ item['Description'] }}</textarea><br> -->
+        
+        <label for="currencyType">Currency Type:</label><br>
+        <select id="currencyType" name="currencyType">
+            <option value="GBP" selected>GBP</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+        </select><br>
+
+        <label for="conversionRate">Conversion Rate:</label><br>
+        <input type="text" id="conversionRate" name="conversionRate" value="1.0" required><br>
+        
+        <input type="submit" value="Update">
+    </form>
+    <a href="{{ url_for('home') }}">Back to Home</a>
+    <!-- <script>
+        $(document).ready(function() {
+            $('#manufacturerNumber').on('input', function() {
+                var manufacturerNumber = $(this).val();
+                $.ajax({
+                    url: '/get_description/' + manufacturerNumber,
+                    method: 'GET',
+                    success: function(response) {
+                        $('#description').val(response.description);
+                    },
+                    error: function() {
+                        console.error('Error fetching description');
+                    }
+                });
+            });
+        });
+    </script> -->
+</body>
+</html>
